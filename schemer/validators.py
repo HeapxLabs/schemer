@@ -5,6 +5,7 @@ def e(string, *args):
     """Function which formats error messages."""
     return string.format(*[pformat(arg) for arg in args])
 
+
 def one_of(*args):
     """
     Validates that a field value matches one of the values

@@ -1,7 +1,7 @@
 import types, copy
 from inspect import getargspec
-from exceptions import ValidationException, SchemaFormatException
-from extension_types import Mixed
+from .exceptions import ValidationException, SchemaFormatException
+from .extension_types import Mixed
 
 
 class Array(object):
@@ -12,12 +12,13 @@ class Array(object):
 class Schema(object):
     """A Schema encapsulates the structure and constraints of a dict."""
 
-    def __init__(self, doc_spec, strict=True, validates=[]):
+    def __init__(self, doc_spec, strict=True, validates=None):
+
         self._doc_spec = doc_spec
         self._virtuals = {}
         self._strict = strict
         self._verify()
-        self._validates = validates
+        self._validates = validates or []
 
     @property
     def doc_spec(self):
@@ -44,7 +45,8 @@ class Schema(object):
                 if isinstance(field_type, Schema) and isinstance(value, dict):
                     field_type.apply_defaults(value)
 
-                elif isinstance(field_type, Array) and isinstance(field_type.contained_type, Schema) and isinstance(value, list):
+                elif isinstance(field_type, Array) and isinstance(field_type.contained_type, Schema) and \
+                        isinstance(value, list):
                     for item in value:
                         field_type.contained_type.apply_defaults(item)
 
@@ -102,7 +104,7 @@ class Schema(object):
             self._verify_default(spec, path)
 
         # Only expected spec keys are supported
-        if not set(spec.keys()).issubset(set(['type', 'required', 'validates', 'default', 'nullable'])):
+        if not set(spec.keys()).issubset(set(seq=['type', 'required', 'validates', 'default', 'nullable'])):
             raise SchemaFormatException("Unsupported field spec item at {}. Items: "+repr(spec.keys()), path)
 
     def _verify_type(self, spec, path):
@@ -120,7 +122,8 @@ class Schema(object):
                 raise SchemaFormatException("Unsupported field type contained by Array at {}.", path)
 
         elif not isinstance(field_type, type) and not isinstance(field_type, types.FunctionType):
-            raise SchemaFormatException("Unsupported field type at {}. Type must be a type, a function, an Array or another Schema", path)
+            raise SchemaFormatException("Unsupported field type at {}. Type must be a type, a function, an Array or "
+                                        "another Schema", path)
 
     def _valid_schema_default(self, value):
         return isinstance(value, dict)
@@ -145,7 +148,8 @@ class Schema(object):
                     if not self._valid_schema_default(item):
                         raise SchemaFormatException("Default value for Schema is not valid.", path)
                 elif not isinstance(item, field_type.contained_type):
-                        raise SchemaFormatException("Not all items in the default list for the Array field at {} are of the correct type.", path)
+                        raise SchemaFormatException("Not all items in the default list for the Array field at {} are "
+                                                    "of the correct type.", path)
 
         elif isinstance(field_type, Schema):
             if not self._valid_schema_default(default):

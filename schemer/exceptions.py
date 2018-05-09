@@ -1,5 +1,3 @@
-
-
 class SchemaFormatException(Exception):
     """Exception which encapsulates a problem found during the verification of a
     a schema."""
