@@ -112,14 +112,14 @@ def is_email():
     """
 
     email = (
-        ur'(?!^\.)'     # No dot at start
-        ur'(?!.*\.@)'   # No dot before at sign
-        ur'(?!.*@\.)'   # No dot after at sign
-        ur'(?!.*\.$)'   # No dot at the end
-        ur'(?!.*\.\.)'  # No double dots anywhere
-        ur'^\S+'        # Starts with one or more non-whitespace characters
-        ur'@'           # Contains an at sign
-        ur'\S+$'        # Ends with one or more non-whitespace characters
+        r'(?!^\.)'     # No dot at start
+        r'(?!.*\.@)'   # No dot before at sign
+        r'(?!.*@\.)'   # No dot after at sign
+        r'(?!.*\.$)'   # No dot at the end
+        r'(?!.*\.\.)'  # No double dots anywhere
+        r'^\S+'        # Starts with one or more non-whitespace characters
+        r'@'           # Contains an at sign
+        r'\S+$'        # Ends with one or more non-whitespace characters
     )
 
     regex = re.compile(email, re.IGNORECASE | re.UNICODE)
