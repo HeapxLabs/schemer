@@ -2,7 +2,12 @@ import types, copy
 from inspect import getargspec
 from .exceptions import ValidationException, SchemaFormatException
 from .extension_types import Mixed
+import six
 
+if six.PY3:
+    iteritems = 'items'
+else:
+    iteritems = 'iteritems'
 
 class Array(object):
     def __init__(self, contained_type):
@@ -28,7 +33,7 @@ class Schema(object):
         """Applies the defaults described by the this schema to the given
         document instance as appropriate. Defaults are only applied to
         fields which are currently unset."""
-        for field, spec in self.doc_spec.iteritems():
+        for field, spec in getattr(self.doc_spec, iteritems)():
             field_type = spec['type']
             if field not in instance:
                 if 'default' in spec:
@@ -68,7 +73,7 @@ class Schema(object):
 
     def _verify(self, path_prefix=None):
         """Verifies that this schema's doc spec is valid and makes sense."""
-        for field, spec in self.doc_spec.iteritems():
+        for field, spec in getattr(self.doc_spec, iteritems)():
             path = self._append_path(path_prefix, field)
 
             # Standard dict-based spec
@@ -104,7 +109,7 @@ class Schema(object):
             self._verify_default(spec, path)
 
         # Only expected spec keys are supported
-        if not set(spec.keys()).issubset(set(seq=['type', 'required', 'validates', 'default', 'nullable'])):
+        if not set(spec.keys()).issubset(set(['type', 'required', 'validates', 'default', 'nullable'])):
             raise SchemaFormatException("Unsupported field spec item at {}. Items: "+repr(spec.keys()), path)
 
     def _verify_type(self, spec, path):
@@ -199,7 +204,7 @@ class Schema(object):
 
         # Loop over each field in the schema and check the instance value conforms
         # to its spec
-        for field, spec in self.doc_spec.iteritems():
+        for field, spec in getattr(self.doc_spec, iteritems)():
             path = self._append_path(path_prefix, field)
 
             # If the field is present, validate it's value.
